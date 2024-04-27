@@ -59,7 +59,7 @@ while True:
         print("\n================ EXTRATO ================")
         print("Não foram realizadas movimentações." if not extrato else extrato)
         print(f"\nSaldo: R$ {saldo:.2f}")
-        saques_disp = 3 - numero_saques
+        saques_disp = LIMITE_SAQUES - numero_saques
         if saques_disp > 0:
             print(f"Você ainda tem {saques_disp} saques disponíveis hoje!")
         else:
