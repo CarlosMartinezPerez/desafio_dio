@@ -4,6 +4,12 @@ class Usuario:
         self.id_usuario = id_usuario
         self.email = email
 
+    def __str__(self):
+        return f"Usuario(nome='{self.nome}', id_usuario='{self.id_usuario}', email='{self.email}')"
+
+    def __repr__(self):
+        return self.__str__()
+
 class ContaBancaria:
     def __init__(self, numero_conta, usuario):
         self.numero_conta = numero_conta
@@ -13,25 +19,33 @@ class ContaBancaria:
 
     def depositar(self, valor):
         self.saldo += valor
-        self.transacoes.append(f'Depósito de {valor}')
+        self.transacoes.append(f'Depósito de R$ {valor:.2f}')
 
     def sacar(self, valor):
         if len([t for t in self.transacoes if t.startswith('Saque')]) >= 3:
             print("Limite de saques diários atingido.")
-            return
+            return False
         elif valor > 500:
             print("Limite de saque excedido.")
-            return
+            return False
         elif self.saldo < valor:
             print("Saldo insuficiente.")
-            return
+            return False
         self.saldo -= valor
-        self.transacoes.append(f'Saque de {valor}')
+        self.transacoes.append(f'Saque de R$ {valor:.2f}')
+        return True
 
     def extrato(self):
         print(f"Extrato da conta {self.numero_conta}:")
         for t in self.transacoes:
             print(t)
+        print(f"Saldo atual: R$ {self.saldo:.2f}")
+
+    def __str__(self):
+        return f"ContaBancaria(numero_conta={self.numero_conta}, usuario={self.usuario.nome}, saldo={self.saldo:.2f})"
+
+    def __repr__(self):
+        return self.__str__()
 
 class SistemaBancario:
     def __init__(self):
@@ -72,6 +86,11 @@ class SistemaBancario:
         self.contas.append(conta)
         return conta
 
+    def listar_contas(self):
+        print("\nLista de contas bancárias:")
+        for conta in self.contas:
+            print(conta)
+
 def exibir_menu():
     print("\nMenu:")
     print("1. Cadastrar usuário")
@@ -79,9 +98,10 @@ def exibir_menu():
     print("3. Atualizar usuário")
     print("4. Deletar usuário")
     print("5. Abrir conta bancária")
-    print("6. Depositar")
-    print("7. Sacar")
-    print("8. Emitir extrato")
+    print("6. Listar contas")
+    print("7. Depositar")
+    print("8. Sacar")
+    print("9. Emitir extrato")
     print("0. Sair")
 
 def main():
@@ -132,16 +152,52 @@ def main():
                 print("Usuário não encontrado.")
 
         elif opcao == "6":
-            # Implemente a lógica de depósito
-            pass
+            sistema.listar_contas()
 
         elif opcao == "7":
-            # Implemente a lógica de saque
-            pass
+            numero_conta = int(input("Digite o número da conta: "))
+            valor = float(input("Digite o valor a ser depositado: "))
+
+            conta = None
+            for c in sistema.contas:
+                if c.numero_conta == numero_conta:
+                    conta = c
+                    break
+
+            if conta:
+                conta.depositar(valor)
+                print(f"Depósito de R$ {valor:.2f} realizado com sucesso!")
+            else:
+                print("Conta bancária não encontrada.")
 
         elif opcao == "8":
-            # Implemente a lógica de emissão de extrato
-            pass
+            numero_conta = int(input("Digite o número da conta: "))
+            valor = float(input("Digite o valor a ser sacado: "))
+
+            conta = None
+            for c in sistema.contas:
+                if c.numero_conta == numero_conta:
+                    conta = c
+                    break
+
+            if conta:
+                if conta.sacar(valor):
+                    print(f"Saque de R$ {valor:.2f} realizado com sucesso!")
+            else:
+                print("Conta bancária não encontrada.")
+
+        elif opcao == "9":
+            numero_conta = int(input("Digite o número da conta: "))
+            conta = None
+            for c in sistema.contas:
+                if c.numero_conta == numero_conta:
+                    conta = c
+                    break
+
+            if conta:
+                conta.extrato()
+            else:
+                print("Conta bancária não encontrada.")
 
         elif opcao == "0":
             print("Obrigado por usar o sistema bancário. Até mais!")
