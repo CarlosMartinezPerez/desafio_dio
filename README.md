@@ -2,7 +2,8 @@
 
 Carlos Martinez Perez
 
-
-desafio.py - primeira entrega
+desafio.py - primeira entrega.
 
 desafio2.py - segunda entrega.
+
+desafio3_1.py - terceira entrega.
