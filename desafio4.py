@@ -1,17 +1,23 @@
 import textwrap
-from abc import ABC, abstractclassmethod, abstractproperty
+from abc import ABC, abstractmethod
 from datetime import datetime
 
 
 class ContaIterador:
     def __init__(self, contas):
-        pass
+        self._contas = contas
+        self._index = 0
 
     def __iter__(self):
-        pass
+        return self
 
     def __next__(self):
-        pass
+        if self._index < len(self._contas):
+            conta = self._contas[self._index]
+            self._index += 1
+            return conta
+        else:
+            raise StopIteration
 
 
 class Cliente:
@@ -140,21 +146,26 @@ class Historico:
             {
                 "tipo": transacao.__class__.__name__,
                 "valor": transacao.valor,
-                "data": datetime.now().strftime("%d-%m-%Y %H:%M:%s"),
+                "data": datetime.now().strftime("%d-%m-%Y %H:%M:%S"),
             }
         )
 
     def gerar_relatorio(self, tipo_transacao=None):
         pass
 
+    def iterar_transacoes(self, tipo_transacao=None):
+        for transacao in self._transacoes:
+            if tipo_transacao is None or transacao["tipo"] == tipo_transacao:
+                yield transacao
+
 
 class Transacao(ABC):
     @property
-    @abstractproperty
+    @abstractmethod
     def valor(self):
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def registrar(self, conta):
         pass
 
@@ -190,7 +201,10 @@ class Deposito(Transacao):
 
 
 def log_transacao(func):
-    pass
+    def wrapper(*args, **kwargs):
+        print(f"Transação realizada em: {datetime.now().strftime('%d-%m-%Y %H:%M:%S')}")
+        return func(*args, **kwargs)
+    return wrapper
 
 
 def menu():
@@ -217,7 +231,6 @@ def recuperar_conta_cliente(cliente):
         print("\n@@@ Cliente não possui conta! @@@")
         return
 
-    # FIXME: não permite cliente escolher a conta
     return cliente.contas[0]
 
 
@@ -273,7 +286,6 @@ def exibir_extrato(clientes):
         return
 
     print("\n================ EXTRATO ================")
-    # TODO: atualizar a implementação para utilizar o gerador definido em Historico
     transacoes = conta.historico.transacoes
 
     extrato = ""
@@ -319,14 +331,14 @@ def criar_conta(numero_conta, clientes, contas):
 
     conta = ContaCorrente.nova_conta(cliente=cliente, numero=numero_conta)
     contas.append(conta)
-    cliente.contas.append(conta)
+    cliente.adicionar_conta(conta)
 
     print("\n=== Conta criada com sucesso! ===")
 
 
 def listar_contas(contas):
-    # TODO: alterar implementação, para utilizar a classe ContaIterador
-    for conta in contas:
+    conta_iterador = ContaIterador(contas)
+    for conta in conta_iterador:
         print("=" * 100)
         print(textwrap.dedent(str(conta)))
 
